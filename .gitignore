@@ -1,0 +1,53 @@
+# Build output
+/build/
+/bin/
+/objs/
+
+# CMake files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+compile_commands.json
+CTestTestfile.cmake
+install_manifest.txt
+
+# Visual Studio
+*.vcxproj*
+*.sln
+*.user
+*.pdb
+.vs/
+
+# VS Code
+.vscode/
+
+# Compiled object files and libraries
+*.o
+*.obj
+*.so
+*.dll
+*.exe
+*.a
+*.lib
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+
+# macOS
+.DS_Store
+
+# Windows thumbnail cache
+Thumbs.db
+
+# Test and temporary folders
+/Testing/
+
+# Ignore other editor/project settings
+.idea/
+*.swp
+
+# Ignore generated third-party build artifacts (if present under repo root)
+/_deps/

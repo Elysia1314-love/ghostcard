@@ -8,6 +8,7 @@
 #include <string>
 #include <random>
 #include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
 
 class Game {
 public:
@@ -35,6 +36,18 @@ private:
     bool gameOver;
     std::string statusMessage;
     std::mt19937 rng;
+    sf::Clock clock;
+    float aiActionTimer = 0.f; // 当为 AI 回合时的倒计时
+
+    struct PendingDiscard {
+        Card* card;
+        sf::Vector2f pos;
+        sf::Vector2f target;
+        float elapsed;
+        float duration;
+        int ownerIndex;
+    };
+    std::vector<PendingDiscard> pendingDiscards;
     sf::Font font;
     bool fontLoaded;
 

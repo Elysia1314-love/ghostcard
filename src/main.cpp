@@ -12,8 +12,9 @@ int main() {
 #endif
     Game game(4, 0);
 
-    sf::RenderWindow window(sf::VideoMode({1024u, 768u}), "Ghost Card - 抽鬼牌", sf::Style::Titlebar | sf::Style::Close);
+    sf::RenderWindow window(sf::VideoMode({1024u, 768u}), "Ghost Card", sf::Style::Titlebar | sf::Style::Close);
     window.setFramerateLimit(60);
+    window.setVerticalSyncEnabled(true);
 
     std::cout << "四人抽鬼牌游戏已启动。玩家位于底部，点击底部手牌区域开始抽牌。\n";
 

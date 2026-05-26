@@ -61,6 +61,24 @@ void Card::createPlaceholderTexture(const std::string& path, Rank rank) {
             }
         }
     }
+
+    // 在卡牌角落绘制编号指示
+    if (rank != Rank::Ghost) {
+        int rankNum = static_cast<int>(rank);
+        // 左上角绘制编号标记
+        for (int dy = 10; dy <= 25; ++dy) {
+            for (int dx = 10; dx <= 25; ++dx) {
+                image.setPixel({static_cast<unsigned>(dx), static_cast<unsigned>(dy)}, sf::Color::Black);
+            }
+        }
+        // 右上角绘制编号标记
+        for (int dy = 10; dy <= 25; ++dy) {
+            for (int dx = width - 25; dx < width - 10; ++dx) {
+                image.setPixel({static_cast<unsigned>(dx), static_cast<unsigned>(dy)}, sf::Color::Black);
+            }
+        }
+    }
+
     if (!image.saveToFile(path)) {
         std::cerr << "Failed to save placeholder texture: " << path << std::endl;
     }

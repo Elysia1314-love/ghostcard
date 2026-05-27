@@ -301,6 +301,64 @@ bool Game::isPointInBottomArea(int x, int y) const {
     return x >= left && x <= right && y >= top && y <= bottom;
 }
 
+bool Game::isPointInDiscardArea(int x, int y) const {
+    float left = WINDOW_WIDTH - HORIZONTAL_MARGIN - CARD_WIDTH * 0.7f;
+    float top = WINDOW_HEIGHT / 2.f - CARD_HEIGHT * 0.35f;
+    float width = CARD_WIDTH * 0.7f;
+    float height = CARD_HEIGHT * 0.7f;
+    return x >= left && x <= left + width && y >= top && y <= top + height;
+}
+
+void Game::drawDiscardPilePanel(sf::RenderWindow& window) {
+    const float panelWidth = 420.f;
+    const float panelHeight = 520.f;
+    const float panelX = WINDOW_WIDTH - HORIZONTAL_MARGIN - panelWidth;
+    const float panelY = VERTICAL_MARGIN;
+    sf::RectangleShape panel({panelWidth, panelHeight});
+    panel.setFillColor(sf::Color(10, 10, 10, 220));
+    panel.setOutlineThickness(3.f);
+    panel.setOutlineColor(sf::Color::White);
+    panel.setPosition(sf::Vector2f(panelX, panelY));
+    window.draw(panel);
+
+    if (fontLoaded) {
+        sf::Text title(font, u8"Discard Pile", 20);
+        title.setFillColor(sf::Color::Yellow);
+        title.setPosition(sf::Vector2f(panelX + 18.f, panelY + 14.f));
+        window.draw(title);
+
+        sf::Text countLabel(font, sf::String(u8"总弃牌数: " + std::to_string(discardPile.size())), 16);
+        countLabel.setFillColor(sf::Color::White);
+        countLabel.setPosition(sf::Vector2f(panelX + 18.f, panelY + 46.f));
+        window.draw(countLabel);
+    }
+
+    const float cardWidth = CARD_WIDTH * 0.36f * 0.9f;
+    const float cardHeight = CARD_HEIGHT * 0.36f * 0.9f;
+    const float xStart = panelX + 18.f;
+    const float yStart = panelY + 80.f;
+    const float xSpacing = cardWidth + 10.f;
+    const float ySpacing = cardHeight + 10.f;
+    const int rows = 6;
+
+    for (size_t i = 0; i < discardPile.size(); ++i) {
+        int col = static_cast<int>(i / rows);
+        int row = static_cast<int>(i % rows);
+        float x = xStart + col * xSpacing;
+        float y = yStart + row * ySpacing;
+        if (discardPile[i]) {
+            discardPile[i]->draw(window, x, y);
+        }
+    }
+
+    if (discardPile.empty() && fontLoaded) {
+        sf::Text emptyLabel(font, u8"当前没有弃牌。", 16);
+        emptyLabel.setFillColor(sf::Color(200, 200, 200));
+        emptyLabel.setPosition(sf::Vector2f(panelX + 18.f, panelY + 90.f));
+        window.draw(emptyLabel);
+    }
+}
+
 void Game::draw(sf::RenderWindow& window) {
     window.clear(sf::Color(25, 90, 35));
 
@@ -394,6 +452,15 @@ void Game::draw(sf::RenderWindow& window) {
         discardLabel.setFillColor(sf::Color::White);
         discardLabel.setPosition(sf::Vector2f(WINDOW_WIDTH - HORIZONTAL_MARGIN - CARD_WIDTH * 0.7f, WINDOW_HEIGHT / 2.f + CARD_HEIGHT * 0.35f + 10.f));
         window.draw(discardLabel);
+
+        sf::Text hint(font, sf::String(u8"点击查看弃牌堆"), 14);
+        hint.setFillColor(sf::Color(200, 200, 200));
+        hint.setPosition(sf::Vector2f(WINDOW_WIDTH - HORIZONTAL_MARGIN - CARD_WIDTH * 0.7f, WINDOW_HEIGHT / 2.f - CARD_HEIGHT * 0.35f - 22.f));
+        window.draw(hint);
+    }
+
+    if (showDiscardPanel) {
+        drawDiscardPilePanel(window);
     }
 
     if (waitingForHumanDraw && currentPlayerIndex == humanPlayerIndex) {
@@ -410,16 +477,23 @@ void Game::handleInput(sf::Event& event) {
     }
     if (event.is<sf::Event::MouseButtonPressed>()) {
         if (const sf::Event::MouseButtonPressed* mouseEvent = event.getIf<sf::Event::MouseButtonPressed>()) {
-            if (mouseEvent->button == sf::Mouse::Button::Left && waitingForHumanDraw) {
-                if (isPointInBottomArea(mouseEvent->position.x, mouseEvent->position.y) && getCurrentPlayer()->isHuman()) {
-                    Player* human = getCurrentPlayer();
-                    Player* source = getNextPlayerWithCards(human);
-                    if (source != human) {
-                        drawCardFromPlayer(human, source);
-                        statusMessage = u8"You draw a card from " + source->getName() + u8".";
-                        removeMatchingPairs(human);
-                        waitingForHumanDraw = false;
-                        advanceTurn();
+            if (mouseEvent->button == sf::Mouse::Button::Left) {
+                if (isPointInDiscardArea(mouseEvent->position.x, mouseEvent->position.y)) {
+                    showDiscardPanel = !showDiscardPanel;
+                    return;
+                }
+
+                if (waitingForHumanDraw) {
+                    if (isPointInBottomArea(mouseEvent->position.x, mouseEvent->position.y) && getCurrentPlayer()->isHuman()) {
+                        Player* human = getCurrentPlayer();
+                        Player* source = getNextPlayerWithCards(human);
+                        if (source != human) {
+                            drawCardFromPlayer(human, source);
+                            statusMessage = u8"You draw a card from " + source->getName() + u8".";
+                            removeMatchingPairs(human);
+                            waitingForHumanDraw = false;
+                            advanceTurn();
+                        }
                     }
                 }
             }

@@ -60,6 +60,10 @@ private:
     int activePlayerCount() const;
     bool isHumanTurn() const;
     bool isPointInBottomArea(int x, int y) const;
+    bool isPointInDiscardArea(int x, int y) const;
+    void drawDiscardPilePanel(sf::RenderWindow& window);
+
+    bool showDiscardPanel = false;
 };
 
 #endif // GAME_H
